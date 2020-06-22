@@ -24,11 +24,16 @@ function positioning(cell, top, left, CELL_SIZE) {
     cell.top = top;
 }
 
+function isRightBlock(cell) {
+    const leftSubtraction = Math.abs(emptyCell.left - cell.left);
+    const topSubtractions = Math.abs(emptyCell.top - cell.top);
+
+    return leftSubtraction + topSubtractions > 1
+}
+
 function move(cell) {
-    console.log(cell.x);
-    console.log(cell.y);
-    console.log(cell.top);
-    console.log(cell.left);
+    if (isRightBlock(cell)) return;
+
     Ease.ease.add(cell,{x: emptyCell.left * CELL_SIZE, y: emptyCell.top * CELL_SIZE}, { duration: 1000 } );
 
     const tempLeft = emptyCell.left;
