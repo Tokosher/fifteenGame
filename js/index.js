@@ -38,18 +38,15 @@ class PuzzleGame {
         for (let i = 0; i < stepCount; i++) { // 5 итераций
             let nullX = this._getNullCell().left;
             let nullY = this._getNullCell().top;
-            /*console.log(`nullX: ${nullX}`);
-            console.log(`nullY: ${nullY}`);*/
+
             let hMove = this._getRandomBool();
             let upLeft = this._getRandomBool();
-            /*console.log(`hMove: ${hMove}`);
-            console.log(`upLeft: ${upLeft}`);*/
+
             if (!hMove && !upLeft) { y = nullY; x = nullX - 1;}
             if (hMove && !upLeft)  { x = nullX; y = nullY + 1;}
             if (!hMove && upLeft)  { y = nullY; x = nullX + 1;}
             if (hMove && upLeft)   { x = nullX; y = nullY - 1;}
-            /*console.log(`x: ${x}`);
-            console.log(`y: ${y}`);*/
+
             if (0 <= x && x <= 3 && 0 <= y && y <= 3) {
                 this._shuffle(x, y);
             }
@@ -67,7 +64,7 @@ class PuzzleGame {
         });
     }
 
-    _put(cell, top, left, CELL_SIZE) { // _
+    _put(cell, top, left, CELL_SIZE) {
         cell.x = left * CELL_SIZE;
         cell.y = top * CELL_SIZE;
 
@@ -75,7 +72,7 @@ class PuzzleGame {
         cell.top = top;
     }
 
-    _isWrongBlock(cell) { // _
+    _isWrongBlock(cell) {
         const leftSubtraction = Math.abs(this.emptyCell.left - cell.left);
         const topSubtractions = Math.abs(this.emptyCell.top - cell.top);
 
@@ -98,7 +95,7 @@ class PuzzleGame {
         this._win();
     }
 
-    _createCells(i, left, top) { //_
+    _createCells(i, left, top) {
         if (i === 0) return;
 
         let cell = new PIXI.Sprite.from(`images/${i}.png`);
@@ -116,10 +113,10 @@ class PuzzleGame {
         this.cells.push(cell);
     }
 
-    _win() { // _
+    _win() {
         const isFinished = this.cells.every(cell => {
             if (!cell.index) return true;
-            return cell.index === cell.top*4 + cell.left + 1; // cause we have a number
+            return cell.index === cell.top*4 + cell.left + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
         });
 
         if (isFinished) alert("You win!")
@@ -128,19 +125,14 @@ class PuzzleGame {
     _shuffle(x, y) { // используется для начального расставления блоков через двумерный массив arr
         let nullX = this._getNullCell().left;
         let nullY = this._getNullCell().top;
-        if (
-            ((x - 1 === nullX || x + 1 === nullX) && y === nullY)
-            || ((y - 1 === nullY || y + 1 === nullY) && x === nullX)
-        ) {
             this.arr[nullY][nullX] = this.arr[y][x];
             this.arr[y][x] = 0;
 
             this.emptyCell.left = x;
             this.emptyCell.top = y;
-        }
     }
 
-    _getNullCell(){ // refactor with emptyCell
+    _getNullCell(){
         return this.emptyCell;
     }
 
