@@ -9,12 +9,12 @@
 }
 
 .field {
-    flex: 2.5;
+
 }
 
 .button {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 1;
+
 }

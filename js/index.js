@@ -15,7 +15,7 @@ class PuzzleGame {
             }
         );
 
-        document.querySelector(this.target).appendChild(this.app.view);
+        $(this.target).append(this.app.view);
     }
 
     createBlocks() {
@@ -26,7 +26,7 @@ class PuzzleGame {
             [13, 14, 15, 0] // 0 - позиция пустого блока
         ];
 
-        this.emptyCell = {
+        this.emptyCell = { // нумерация с 0
             left: 3,
             top: 3
         };
@@ -68,6 +68,16 @@ class PuzzleGame {
         }
     }
 
+    gameRestart(id) {
+        $(id).click(() => {
+            this._removeBlocks();
+
+            this.createBlocks();
+            this.mix(20);
+            this.placeBlocks();
+        })
+    }
+
     placeBlocks() {
         let numbers = this.arr.flat();
 
@@ -76,6 +86,12 @@ class PuzzleGame {
             const top = (index - left) / 4;
 
             this._createCells(num, left, top);
+        });
+    }
+
+    _removeBlocks() {
+        this.cells.map(cell => {
+            this.app.stage.removeChild(cell);
         });
     }
 
@@ -160,21 +176,6 @@ class PuzzleGame {
             return true; // функция возращает true, в обратном случае возвращает undefined, что является ложным значением
         }
     }
-
-    gameRestart(id) {
-        const restartButton = document.getElementById(id);
-        restartButton.addEventListener('click', () => {
-            console.log(this);
-
-            this.cells.map(cell => {
-                this.app.stage.removeChild(cell);
-            });
-
-            this.createBlocks();
-            this.mix(20);
-            this.placeBlocks();
-        });
-    }
 }
 
 const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field');
@@ -182,4 +183,4 @@ puzzleGame15.createArea();
 puzzleGame15.createBlocks();
 puzzleGame15.mix(20);
 puzzleGame15.placeBlocks();
-puzzleGame15.gameRestart('restartButton');
+puzzleGame15.gameRestart('#restartButton');
