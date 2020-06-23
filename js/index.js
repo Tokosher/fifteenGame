@@ -1,17 +1,18 @@
 const CELL_SIZE = 200;
-const emptyCell = {
-    left: 0,
-    top: 0
-};
+const cells = [];
 
-let arr = [
+const arr = [
     [1,2,3,4],
     [5,6,7,8],
     [9,10,11,12],
     [13,14,15,0]
 ];
 
-const cells = [];
+const emptyCell = {
+    left: 0,
+    top: 0
+};
+
 cells.push(emptyCell);
 
 const app = new PIXI.Application(
@@ -75,22 +76,27 @@ function createCells(i, left, top) {
 function win() {
     const isFinished = cells.every(cell => {
             if (!cell.index) return true;
-        return cell.index === cell.top*4 + cell.left + 1;
+        return cell.index === cell.top*4 + cell.left + 1; // cause we have a number
     });
     console.log(isFinished);
 
     if (isFinished) alert("You win!")
 }
 
-function move(x, y) {
-    let nullX = this.getNullCell().x; // положение по х пустой ячейки
-    let nullY = this.getNullCell().y; // положение по у пустой ячейки
+function shuffle(x, y) { // 2, 3
+    let nullX = this.getNullCell().x; // 3
+    let nullY = this.getNullCell().y; // 3
+    console.log(nullX);
+    console.log(nullY);
     if (
-        ((x - 1 == nullX || x + 1 == nullX) && y == nullY)
-        || ((y - 1 == nullY || y + 1 == nullY) && x == nullX)
+        ((x - 1 === nullX || x + 1 === nullX) && y === nullY)
+        || ((y - 1 === nullY || y + 1 === nullY) && x === nullX)
     ) {
         arr[nullY][nullX] = arr[y][x];
         arr[y][x] = 0;
+
+        emptyCell.left = x;
+        emptyCell.top = y;
     }
 }
 
@@ -98,9 +104,6 @@ function getNullCell(){
     for (let i = 0; i<4; i++){
         for (let j=0; j<4; j++){
             if(arr[j][i] === 0){
-                emptyCell.left = i;
-                emptyCell.top = j;
-
                 return {'x': i, 'y': j};
             }
         }
@@ -108,19 +111,25 @@ function getNullCell(){
 }
 
 function mix(stepCount) {
-    console.log(stepCount);
     let x,y;
+
     for (let i = 0; i < stepCount; i++) {
-        let nullX = this.getNullCell().x; // положение пустой клетки по х
-        let nullY = this.getNullCell().y; // положение пустой клетки по у
-        let hMove = getRandomBool(); // какая то рандомная штука тру или фолс
-        let upLeft = getRandomBool(); // какая то рандомная штука тру или фолс
+        let nullX = this.getNullCell().x;
+        let nullY = this.getNullCell().y;
+
+        let hMove = getRandomBool();
+        let upLeft = getRandomBool();
+
+        console.log(hMove);
+        console.log(upLeft);
+
         if (!hMove && !upLeft) { y = nullY; x = nullX - 1;}
         if (hMove && !upLeft)  { x = nullX; y = nullY + 1;}
         if (!hMove && upLeft)  { y = nullY; x = nullX + 1;}
         if (hMove && upLeft)   { x = nullX; y = nullY - 1;}
+        console.log(x, y);
         if (0 <= x && x <= 3 && 0 <= y && y <= 3) {
-            move(x, y);
+            shuffle(x, y);
         }
     }
 }
@@ -131,8 +140,7 @@ function getRandomBool() {
     }
 }
 
-mix(20);
-getNullCell();
+mix(30);
 
 let numbers = arr.flat();
 
@@ -142,5 +150,3 @@ numbers.map((num, index) => {
 
     createCells(num, left, top);
 });
-
-// refactor and features, the first feature is levels
