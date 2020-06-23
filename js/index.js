@@ -1,14 +1,29 @@
 class PuzzleGame {
-    constructor(cellSize, appWidth, appHeight) {
+    constructor(cellSize, appWidth, appHeight, target) {
         this.cellSize = cellSize;
         this.appWidth = appWidth;
         this.appHeight = appHeight;
+        this.target = target;
+    }
 
+    createArea() {
+        this.app = new PIXI.Application(
+            {
+                width: this.appWidth,
+                height: this.appHeight,
+                backgroundColor: 0xAAAAAA
+            }
+        );
+
+        document.querySelector(this.target).appendChild(this.app.view);
+    }
+
+    createBlocks() {
         this.arr = [
-            [1,2,3,4],
-            [5,6,7,8],
-            [9,10,11,12],
-            [13,14,15,0] // 0 - позиция пустого блока
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+            [13, 14, 15, 0] // 0 - позиция пустого блока
         ];
 
         this.emptyCell = {
@@ -20,32 +35,32 @@ class PuzzleGame {
         this.cells.push(this.emptyCell);
     }
 
-    createApp() {
-        this.app = new PIXI.Application(
-            {
-                width: this.appWidth,
-                height: this.appHeight,
-                backgroundColor: 0xAAAAAA
-            }
-        );
-
-        document.querySelector('.field').appendChild(this.app.view);
-    }
-
     mix(stepCount) {
-        let x,y;
+        let x, y;
 
-        for (let i = 0; i < stepCount; i++) { // 5 итераций
+        for (let i = 0; i < stepCount; i++) {
             let nullX = this._getNullCell().left;
             let nullY = this._getNullCell().top;
 
             let hMove = this._getRandomBool();
             let upLeft = this._getRandomBool();
 
-            if (!hMove && !upLeft) { y = nullY; x = nullX - 1;}
-            if (hMove && !upLeft)  { x = nullX; y = nullY + 1;}
-            if (!hMove && upLeft)  { y = nullY; x = nullX + 1;}
-            if (hMove && upLeft)   { x = nullX; y = nullY - 1;}
+            if (!hMove && !upLeft) {
+                y = nullY;
+                x = nullX - 1;
+            }
+            if (hMove && !upLeft) {
+                x = nullX;
+                y = nullY + 1;
+            }
+            if (!hMove && upLeft) {
+                y = nullY;
+                x = nullX + 1;
+            }
+            if (hMove && upLeft) {
+                x = nullX;
+                y = nullY - 1;
+            }
 
             if (0 <= x && x <= 3 && 0 <= y && y <= 3) {
                 this._shuffle(x, y);
@@ -82,7 +97,10 @@ class PuzzleGame {
     _move(cell) { // используется для передвижения блоков рукой игрока
         if (this._isWrongBlock(cell)) return;
 
-        Ease.ease.add(cell,{x: this.emptyCell.left * this.cellSize, y: this.emptyCell.top * this.cellSize}, { duration: 1000 } );
+        Ease.ease.add(cell, {
+            x: this.emptyCell.left * this.cellSize,
+            y: this.emptyCell.top * this.cellSize
+        }, {duration: 1000});
 
         const tempLeft = this.emptyCell.left;
         const tempTop = this.emptyCell.top;
@@ -116,7 +134,7 @@ class PuzzleGame {
     _win() {
         const isFinished = this.cells.every(cell => {
             if (!cell.index) return true;
-            return cell.index === cell.top*4 + cell.left + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
+            return cell.index === cell.top * 4 + cell.left + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
         });
 
         if (isFinished) alert("You win!")
@@ -125,14 +143,15 @@ class PuzzleGame {
     _shuffle(x, y) { // используется для начального расставления блоков через двумерный массив arr
         let nullX = this._getNullCell().left;
         let nullY = this._getNullCell().top;
-            this.arr[nullY][nullX] = this.arr[y][x];
-            this.arr[y][x] = 0;
 
-            this.emptyCell.left = x;
-            this.emptyCell.top = y;
+        this.arr[nullY][nullX] = this.arr[y][x];
+        this.arr[y][x] = 0;
+
+        this.emptyCell.left = x;
+        this.emptyCell.top = y;
     }
 
-    _getNullCell(){
+    _getNullCell() {
         return this.emptyCell;
     }
 
@@ -142,9 +161,25 @@ class PuzzleGame {
         }
     }
 
+    gameRestart(id) {
+        const restartButton = document.getElementById(id);
+        restartButton.addEventListener('click', () => {
+            console.log(this);
+
+            this.cells.map(cell => {
+                this.app.stage.removeChild(cell);
+            });
+
+            this.createBlocks();
+            this.mix(20);
+            this.placeBlocks();
+        });
+    }
 }
 
-const puzzleGame15 = new PuzzleGame(200, 800, 800);
-puzzleGame15.createApp();
-puzzleGame15.mix(40);
+const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field');
+puzzleGame15.createArea();
+puzzleGame15.createBlocks();
+puzzleGame15.mix(20);
 puzzleGame15.placeBlocks();
+puzzleGame15.gameRestart('restartButton');
