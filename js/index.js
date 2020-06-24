@@ -1,12 +1,22 @@
+const COUNT_BLOCKS_IN_GAME = 16;
 class PuzzleGame {
-    constructor(cellSize, appWidth, appHeight, target) {
+    constructor(cellSize, appWidth, appHeight, target, idRestartButton) {
         this.cellSize = cellSize;
         this.appWidth = appWidth;
         this.appHeight = appHeight;
         this.target = target;
+        this.mixCount = 20; // default
+
+        this.state = {
+            process: 'game' // необходимо для понимания: создавать карту или нет
+        };
+
+        this._activateButtons(idRestartButton);
     }
 
     createArea() {
+        this.state.process = 'game';
+
         this.app = new PIXI.Application(
             {
                 width: this.appWidth,
@@ -35,12 +45,11 @@ class PuzzleGame {
         this.cells.push(this.emptyCell);
     }
 
-    mix(stepCount) {
+    mix() {
         let x, y;
-
-        for (let i = 0; i < stepCount; i++) {
-            let nullX = this._getNullCell().left;
-            let nullY = this._getNullCell().top;
+        console.log(this.mixCount);
+        for (let i = 0; i < this.mixCount; i++) {
+            const { left: nullX, top: nullY } = this.emptyCell;
 
             let hMove = this._getRandomBool();
             let upLeft = this._getRandomBool();
@@ -68,14 +77,12 @@ class PuzzleGame {
         }
     }
 
-    gameRestart(id) {
-        $(id).click(() => {
-            this._removeBlocks();
+    gameRestart() {
+        this._removeBlocks();
 
-            this.createBlocks();
-            this.mix(20);
-            this.placeBlocks();
-        })
+        this.createBlocks();
+        this.mix(20);
+        this.placeBlocks();
     }
 
     placeBlocks() {
@@ -89,10 +96,14 @@ class PuzzleGame {
         });
     }
 
-    _removeBlocks() {
-        this.cells.map(cell => {
-            this.app.stage.removeChild(cell);
-        });
+    _removeBlocks(delay, step) {
+        for (let cell of this.cells) {
+            setTimeout(() => {
+                console.log(4);
+                this.app.stage.removeChild(cell);
+            }, delay);
+            delay += step;
+        }
     }
 
     _put(cell, top, left, CELL_SIZE) {
@@ -147,18 +158,34 @@ class PuzzleGame {
         this.cells.push(cell);
     }
 
+    _removeArea() {
+        this.app.destroy({ texture:true, baseTexture:true });
+    }
+
     _win() {
         const isFinished = this.cells.every(cell => {
             if (!cell.index) return true;
             return cell.index === cell.top * 4 + cell.left + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
         });
 
-        if (isFinished) alert("You win!")
+        if (isFinished) {
+            this.state.process = 'win';
+            console.log(this.state.process);
+
+            let delay = 50;
+            let step = 30;
+            this._removeBlocks(delay, step);
+
+            setTimeout(() => {
+                this._removeArea();
+                $(this.target).html("This game is yours");
+            }, delay + step * COUNT_BLOCKS_IN_GAME);
+        }
     }
 
     _shuffle(x, y) { // используется для начального расставления блоков через двумерный массив arr
-        let nullX = this._getNullCell().left;
-        let nullY = this._getNullCell().top;
+
+        const { left: nullX, top: nullY } = this.emptyCell;
 
         this.arr[nullY][nullX] = this.arr[y][x];
         this.arr[y][x] = 0;
@@ -167,20 +194,75 @@ class PuzzleGame {
         this.emptyCell.top = y;
     }
 
-    _getNullCell() {
-        return this.emptyCell;
-    }
-
     _getRandomBool() { // _
         if (Math.floor(Math.random() * 2) === 0) {
             return true; // функция возращает true, в обратном случае возвращает undefined, что является ложным значением
         }
     }
+
+    _addLevelOfDifficult(className) {
+        switch (className) {
+            case 'beginnerButton':
+                this.mixCount = 25;
+                break;
+            case 'easyButton':
+                this.mixCount = 50;
+                break;
+            case 'mediumButton':
+                this.mixCount = 100;
+                break;
+            case 'hardButton':
+                this.mixCount = 300;
+                break;
+        }
+
+        this.gameRestart();
+    }
+
+    _activateButtons(id) {
+        $(id).click(() => {
+            if (this.state.process === 'win') {
+                console.log('WIN');
+                $(this.target).html('');
+                this.createArea();
+
+                this.state.process = 'game';
+            }
+
+            this.gameRestart();
+        });
+
+        const levelButtons = $('.levels button');
+
+        for (let button of levelButtons) {
+            button.addEventListener('click', () => {
+                if (this.state.process === 'win') {
+                    console.log('WIN');
+                    $(this.target).html('');
+                    this.createArea();
+
+                    this.state.process = 'game';
+                }
+
+                for (let button of levelButtons) {
+                    button.classList.remove('active', 'border-dark', 'disabled'); // убираем active class с текущей кнопки
+                }
+
+                this._addLevelOfDifficult(button.classList[0]);
+                button.classList.add('active', 'border-dark', 'disabled'); // добавляем к нажатой кнопке active class
+
+                console.log(this);
+                console.log(this.state.process);
+            })
+        }
+    }
 }
 
-const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field');
+const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field', '#restartButton');
+
 puzzleGame15.createArea();
 puzzleGame15.createBlocks();
-puzzleGame15.mix(20);
+puzzleGame15.mix();
 puzzleGame15.placeBlocks();
-puzzleGame15.gameRestart('#restartButton');
+
+// добавить к гейм рестарт массив из имя и микс

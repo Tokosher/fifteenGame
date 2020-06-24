@@ -9,7 +9,10 @@
 }
 
 .field {
-
+    font-size: 50px;
+    font-family: "Trebuchet MS";
+    min-width: 800px;
+    text-align: center;
 }
 
 .button {
@@ -17,4 +20,14 @@
     justify-content: center;
     align-items: center;
 
+}
+
+.levels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.levels button {
+    margin-bottom: 20px;
 }
