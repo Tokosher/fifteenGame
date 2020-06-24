@@ -104,7 +104,7 @@ class PuzzleGame {
         }
     }
 
-    _put(cell, top, left, CELL_SIZE) {
+    _putCell(cell, top, left, CELL_SIZE) {
         cell.x = left * CELL_SIZE;
         cell.y = top * CELL_SIZE;
 
@@ -125,7 +125,7 @@ class PuzzleGame {
         Ease.ease.add(cell, {
             x: this.emptyCell.left * this.cellSize,
             y: this.emptyCell.top * this.cellSize
-        }, { duration: 1000 });
+        }, { duration: 300 });
 
         const tempLeft = this.emptyCell.left;
         const tempTop = this.emptyCell.top;
@@ -143,7 +143,7 @@ class PuzzleGame {
         if (i === 0) return;
 
         let cell = new PIXI.Sprite.from(`images/${i}.png`);
-        this._put(cell, top, left, this.cellSize);
+        this._putCell(cell, top, left, this.cellSize);
         this.app.stage.addChild(cell);
 
         cell.interactive = true;
@@ -152,6 +152,14 @@ class PuzzleGame {
 
         cell.on("pointerup", () => {
             this._move(cell);
+        });
+
+        cell.on('pointerover', () => {
+            cell.tint = 0xFFF300;
+        });
+
+        cell.on('pointerout', () => {
+            cell.tint = 0xFFFFFF; // убираем tiny effect
         });
 
         this.cells.push(cell);
