@@ -1,6 +1,7 @@
 const COUNT_BLOCKS_IN_GAME = 16;
+
 class PuzzleGame {
-    constructor(cellSize, appWidth, appHeight, target, idRestartButton) {
+    constructor(cellSize, appWidth, appHeight, target, idRestartButton, levelButtons) {
         this.cellSize = cellSize;
         this.appWidth = appWidth;
         this.appHeight = appHeight;
@@ -11,12 +12,10 @@ class PuzzleGame {
             process: 'game' // необходимо для понимания: создавать карту или нет
         };
 
-        this._activateButtons(idRestartButton);
+        this._activateButtons(idRestartButton, levelButtons);
     }
 
     createArea() {
-        this.state.process = 'game';
-
         this.app = new PIXI.Application(
             {
                 width: this.appWidth,
@@ -49,7 +48,7 @@ class PuzzleGame {
         let x, y;
         console.log(this.mixCount);
         for (let i = 0; i < this.mixCount; i++) {
-            const { left: nullX, top: nullY } = this.emptyCell;
+            const {left: nullX, top: nullY} = this.emptyCell;
 
             let hMove = this._getRandomBool();
             let upLeft = this._getRandomBool();
@@ -99,7 +98,6 @@ class PuzzleGame {
     _removeBlocks(delay, step) {
         for (let cell of this.cells) {
             setTimeout(() => {
-                console.log(4);
                 this.app.stage.removeChild(cell);
             }, delay);
             delay += step;
@@ -127,13 +125,14 @@ class PuzzleGame {
         Ease.ease.add(cell, {
             x: this.emptyCell.left * this.cellSize,
             y: this.emptyCell.top * this.cellSize
-        }, {duration: 1000});
+        }, { duration: 1000 });
 
         const tempLeft = this.emptyCell.left;
         const tempTop = this.emptyCell.top;
 
         this.emptyCell.left = cell.left;
         this.emptyCell.top = cell.top;
+
         cell.left = tempLeft;
         cell.top = tempTop;
 
@@ -159,7 +158,7 @@ class PuzzleGame {
     }
 
     _removeArea() {
-        this.app.destroy({ texture:true, baseTexture:true });
+        this.app.destroy({texture: true, baseTexture: true});
     }
 
     _win() {
@@ -169,23 +168,23 @@ class PuzzleGame {
         });
 
         if (isFinished) {
-            this.state.process = 'win';
-            console.log(this.state.process);
-
             let delay = 50;
             let step = 30;
             this._removeBlocks(delay, step);
 
             setTimeout(() => {
                 this._removeArea();
-                $(this.target).html("This game is yours");
+                $(this.target).html(this._phraseGenerator());
             }, delay + step * COUNT_BLOCKS_IN_GAME);
+
+            this._stateToggle();
+            console.log('In win function ' + this.state.process);
         }
     }
 
     _shuffle(x, y) { // используется для начального расставления блоков через двумерный массив arr
 
-        const { left: nullX, top: nullY } = this.emptyCell;
+        const {left: nullX, top: nullY} = this.emptyCell;
 
         this.arr[nullY][nullX] = this.arr[y][x];
         this.arr[y][x] = 0;
@@ -194,9 +193,9 @@ class PuzzleGame {
         this.emptyCell.top = y;
     }
 
-    _getRandomBool() { // _
+    _getRandomBool() { // функция возращает true, в обратном случае возвращает undefined, что является ложным значением
         if (Math.floor(Math.random() * 2) === 0) {
-            return true; // функция возращает true, в обратном случае возвращает undefined, что является ложным значением
+            return true;
         }
     }
 
@@ -219,29 +218,30 @@ class PuzzleGame {
         this.gameRestart();
     }
 
-    _activateButtons(id) {
+    _activateButtons(id, lvlBtn) {
         $(id).click(() => {
             if (this.state.process === 'win') {
-                console.log('WIN');
+                console.log('DA');
                 $(this.target).html('');
                 this.createArea();
 
-                this.state.process = 'game';
+                this._stateToggle();
+                console.log('In button restart state is ' + this.state.process);
             }
 
             this.gameRestart();
         });
 
-        const levelButtons = $('.levels button');
+        const levelButtons = $(lvlBtn);
 
         for (let button of levelButtons) {
             button.addEventListener('click', () => {
+                console.log(this.state.process);
                 if (this.state.process === 'win') {
-                    console.log('WIN');
                     $(this.target).html('');
                     this.createArea();
 
-                    this.state.process = 'game';
+                    this._stateToggle();
                 }
 
                 for (let button of levelButtons) {
@@ -251,18 +251,44 @@ class PuzzleGame {
                 this._addLevelOfDifficult(button.classList[0]);
                 button.classList.add('active', 'border-dark', 'disabled'); // добавляем к нажатой кнопке active class
 
-                console.log(this);
-                console.log(this.state.process);
             })
         }
     }
+
+    _stateToggle() {
+        if (this.state.process === 'win') {
+            this.state.process = 'game';
+        } else {
+            this.state.process = 'win';
+        }
+
+        console.log('Current state is in the toggle func ' + this.state);
+
+    }
+
+    _phraseGenerator() {
+        const phrases = [
+            'Your victory',
+            'Congratulations!',
+            'Victory',
+            'This game is yours',
+            'You won!',
+            'You won the fight',
+            'Victory is yours',
+            'Great!',
+            'Good job',
+            'Alright, alright!'
+        ];
+
+        const phrase = Math.floor(Math.random() * phrases.length);
+
+        return phrases[phrase];
+    }
 }
 
-const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field', '#restartButton');
+const puzzleGame15 = new PuzzleGame(200, 800, 800, '.field', '#restartButton', '.levels button');
 
 puzzleGame15.createArea();
 puzzleGame15.createBlocks();
 puzzleGame15.mix();
 puzzleGame15.placeBlocks();
-
-// добавить к гейм рестарт массив из имя и микс
