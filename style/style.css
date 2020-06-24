@@ -19,7 +19,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
 }
 
 .levels {
@@ -34,7 +33,7 @@
 
 .header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin: 0 10px;
 }
 

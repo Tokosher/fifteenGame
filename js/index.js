@@ -6,7 +6,7 @@ class PuzzleGame {
         this.appWidth = appWidth;
         this.appHeight = appHeight;
         this.target = target;
-        this.mixCount = 20; // default
+        this.mixCount = 50; // default
 
         this.state = {
             process: 'game' // необходимо для понимания: создавать карту или нет
@@ -46,7 +46,6 @@ class PuzzleGame {
 
     mix() {
         let x, y;
-        console.log(this.mixCount);
         for (let i = 0; i < this.mixCount; i++) {
             const {left: nullX, top: nullY} = this.emptyCell;
 
@@ -122,10 +121,10 @@ class PuzzleGame {
     _move(cell) { // используется для передвижения блоков рукой игрока
         if (this._isWrongBlock(cell)) return;
 
-        Ease.ease.add(cell, {
+        Ease.ease.add (cell, {
             x: this.emptyCell.left * this.cellSize,
             y: this.emptyCell.top * this.cellSize
-        }, { duration: 300 });
+        }, { duration: 300, removeExisting: true });
 
         const tempLeft = this.emptyCell.left;
         const tempTop = this.emptyCell.top;
@@ -150,7 +149,7 @@ class PuzzleGame {
         cell.buttonMode = true;
         cell.index = i;
 
-        cell.on("pointerup", () => {
+        cell.on("pointerdown", () => {
             this._move(cell);
         });
 
@@ -166,7 +165,7 @@ class PuzzleGame {
     }
 
     _removeArea() {
-        this.app.destroy({texture: true, baseTexture: true});
+        this.app.destroy({ texture: true, baseTexture: true });
     }
 
     _win() {
@@ -186,7 +185,6 @@ class PuzzleGame {
             }, delay + step * COUNT_BLOCKS_IN_GAME);
 
             this._stateToggle();
-            console.log('In win function ' + this.state.process);
         }
     }
 
@@ -229,12 +227,10 @@ class PuzzleGame {
     _activateButtons(id, lvlBtn) {
         $(id).click(() => {
             if (this.state.process === 'win') {
-                console.log('DA');
                 $(this.target).html('');
                 this.createArea();
 
                 this._stateToggle();
-                console.log('In button restart state is ' + this.state.process);
             }
 
             this.gameRestart();
@@ -244,7 +240,6 @@ class PuzzleGame {
 
         for (let button of levelButtons) {
             button.addEventListener('click', () => {
-                console.log(this.state.process);
                 if (this.state.process === 'win') {
                     $(this.target).html('');
                     this.createArea();
@@ -265,13 +260,10 @@ class PuzzleGame {
 
     _stateToggle() {
         if (this.state.process === 'win') {
-            this.state.process = 'game';
-        } else {
-            this.state.process = 'win';
+            return this.state.process = 'game';
         }
 
-        console.log('Current state is in the toggle func ' + this.state);
-
+        this.state.process = 'win';
     }
 
     _phraseGenerator() {
