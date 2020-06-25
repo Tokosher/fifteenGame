@@ -12,6 +12,8 @@ class PuzzleGame {
             process: 'game' // необходимо для понимания: создавать карту или нет
         };
 
+        this.clicks = 0;
+
         this._activateButtons(idRestartButton, levelButtons);
     }
 
@@ -135,6 +137,8 @@ class PuzzleGame {
         cell.left = tempLeft;
         cell.top = tempTop;
 
+        this.clicks += 1;
+
         this._win();
     }
 
@@ -181,7 +185,12 @@ class PuzzleGame {
 
             setTimeout(() => {
                 this._removeArea();
-                $(this.target).html(this._phraseGenerator());
+                $(this.target).html(`
+                ${this._phraseGenerator()}
+                <p>You have moved blocks ${this.clicks} times.</p>
+                `);
+
+                this.clicks = 0;
             }, delay + step * COUNT_BLOCKS_IN_GAME);
 
             this._stateToggle();
@@ -233,6 +242,8 @@ class PuzzleGame {
                 this._stateToggle();
             }
 
+            this.clicks = 0;
+
             this.gameRestart();
         });
 
@@ -246,6 +257,8 @@ class PuzzleGame {
 
                     this._stateToggle();
                 }
+
+                this.clicks = 0;
 
                 for (let button of levelButtons) {
                     button.classList.remove('active', 'border-dark', 'disabled'); // убираем active class с текущей кнопки
@@ -268,15 +281,15 @@ class PuzzleGame {
 
     _phraseGenerator() {
         const phrases = [
-            'Your victory',
+            'Your victory!',
             'Congratulations!',
-            'Victory',
-            'This game is yours',
+            'Victory.',
+            'This game is yours.',
             'You won!',
-            'You won the fight',
-            'Victory is yours',
+            'You won the fight.',
+            'Victory is yours.',
             'Great!',
-            'Good job',
+            'Good job!',
             'Alright, alright!'
         ];
 
