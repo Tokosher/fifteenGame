@@ -197,7 +197,7 @@ class PuzzleGame {
         }
     }
 
-    _shuffle(x, y) { // используется для начального расставления блоков через двумерный массив arr
+    _shuffle(x, y) { // используется для расставления блоков через двумерный массив arr
 
         const {left: nullX, top: nullY} = this.emptyCell;
 
