@@ -38,8 +38,8 @@ class PuzzleGame {
         ];
 
         this.emptyCell = { // нумерация с 0
-            left: 3,
-            top: 3
+            column: 3,
+            row: 3
         };
 
         this.cells = [];
@@ -49,7 +49,7 @@ class PuzzleGame {
     mix() {
         let x, y;
         for (let i = 0; i < this.mixCount; i++) {
-            const {left: nullX, top: nullY} = this.emptyCell;
+            const {column: nullX, row: nullY} = this.emptyCell;
 
             let hMove = this._getRandomBool();
             let upLeft = this._getRandomBool();
@@ -89,10 +89,10 @@ class PuzzleGame {
         let numbers = this.arr.flat();
 
         numbers.map((num, index) => {
-            const left = index % 4;
-            const top = (index - left) / 4;
+            const column = index % 4;
+            const row = (index - column) / 4;
 
-            this._createCells(num, left, top);
+            this._createCells(num, column, row);
         });
     }
 
@@ -105,48 +105,48 @@ class PuzzleGame {
         }
     }
 
-    _putCell(cell, top, left, CELL_SIZE) {
-        cell.x = left * CELL_SIZE;
-        cell.y = top * CELL_SIZE;
+    _putCell(cell, row, column, CELL_SIZE) {
+        cell.x = column * CELL_SIZE;
+        cell.y = row * CELL_SIZE;
 
-        cell.left = left;
-        cell.top = top;
+        cell.column = column;
+        cell.row = row;
     }
 
     _isWrongBlock(cell) {
-        const leftSubtraction = Math.abs(this.emptyCell.left - cell.left);
-        const topSubtractions = Math.abs(this.emptyCell.top - cell.top);
+        const columnSubtraction = Math.abs(this.emptyCell.column - cell.column);
+        const rowSubtractions = Math.abs(this.emptyCell.row - cell.row);
 
-        return leftSubtraction + topSubtractions > 1
+        return columnSubtraction + rowSubtractions > 1
     }
 
     _move(cell) { // используется для передвижения блоков рукой игрока
         if (this._isWrongBlock(cell)) return;
 
         Ease.ease.add (cell, {
-            x: this.emptyCell.left * this.cellSize,
-            y: this.emptyCell.top * this.cellSize
+            x: this.emptyCell.column * this.cellSize,
+            y: this.emptyCell.row * this.cellSize
         }, { duration: 300, removeExisting: true });
 
-        const tempLeft = this.emptyCell.left;
-        const tempTop = this.emptyCell.top;
+        const tempLeft = this.emptyCell.column;
+        const tempTop = this.emptyCell.row;
 
-        this.emptyCell.left = cell.left;
-        this.emptyCell.top = cell.top;
+        this.emptyCell.column = cell.column;
+        this.emptyCell.row = cell.row;
 
-        cell.left = tempLeft;
-        cell.top = tempTop;
+        cell.column = tempLeft;
+        cell.row = tempTop;
 
         this.clicks += 1;
 
         this._win();
     }
 
-    _createCells(i, left, top) {
+    _createCells(i, column, row) {
         if (i === 0) return;
 
         let cell = new PIXI.Sprite.from(`images/${i}.png`);
-        this._putCell(cell, top, left, this.cellSize);
+        this._putCell(cell, row, column, this.cellSize);
         this.app.stage.addChild(cell);
 
         cell.interactive = true;
@@ -175,7 +175,7 @@ class PuzzleGame {
     _win() {
         const isFinished = this.cells.every(cell => {
             if (!cell.index) return true;
-            return cell.index === cell.top * 4 + cell.left + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
+            return cell.index === cell.row * 4 + cell.column + 1; // добавляем 1, так как вычисляем индексы, которые начинаются с 0
         });
 
         if (isFinished) {
@@ -199,13 +199,13 @@ class PuzzleGame {
 
     _shuffle(x, y) { // используется для расставления блоков через двумерный массив arr
 
-        const {left: nullX, top: nullY} = this.emptyCell;
+        const {column: nullX, row: nullY} = this.emptyCell;
 
         this.arr[nullY][nullX] = this.arr[y][x];
         this.arr[y][x] = 0;
 
-        this.emptyCell.left = x;
-        this.emptyCell.top = y;
+        this.emptyCell.column = x;
+        this.emptyCell.row = y;
     }
 
     _getRandomBool() { // функция возращает true, в обратном случае возвращает undefined, что является ложным значением
